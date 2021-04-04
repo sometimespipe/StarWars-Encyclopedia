@@ -1,42 +1,49 @@
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			people: [],
+			favorites: [],
+			planets: []
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
+			fetchPlanets: async () => {
+				let URL = "https://swapi.dev/api/planets/";
+				let REQUEST = {
+					method: "GET",
+					headers: {
+						"content-type": "application/json"
+					}
+				};
+				const response = await fetch(URL, REQUEST);
+				const json = await response.json();
+
+				console.log("Data", json);
+				setStore({ planets: json.results });
 			},
-			loadSomeData: () => {
-				/**
-					fetch().then().then(data => setStore({ "foo": data.bar }))
-				*/
+			fetchPeople: async () => {
+				let url = "https://swapi.dev/api/people/";
+				let request = {
+					method: "GET",
+					headers: {
+						"content-type": "application/json"
+					}
+				};
+				const response = await fetch(url, request);
+				const json = await response.json();
+
+				console.log("Data", json);
+				setStore({ people: json.results });
 			},
-			changeColor: (index, color) => {
-				//get the store
+			manageFavorites: name => {
 				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+				setStore({ favorites: [...store.favorites, name] });
+			},
+			removeFavorite: index => {
+				const store = getStore();
+				const filter = store.favorites.filter(item => item != index);
+				setStore({ favorites: filter });
+				localStorage.setItem("favorites", JSON.stringify(store.favorites));
+				console.log(">>>>deleteFavorite", store.favorites);
 			}
 		}
 	};
